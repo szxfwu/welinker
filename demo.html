@@ -1,5 +1,4 @@
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -13,51 +12,42 @@
     <style>
         body {
             padding-right: 0px !important;
-			background: #ddd;
         }
 
         .modal-open {
             overflow-y: auto;
         }
-		.mf {
-			margin: 36px auto;
-			width: 420px;
-			height: 736px;
-			background: #fff;
-        }
     </style>
 </head>
 <body>
 
-    <div class="mf">
-        <div class="nav-socket">
-            <div class="socket-title" id="divDeviceInfo"></div>   
-            <div class="col-xs-12" style="padding:48px 12px">
-                <div class="col-xs-3">LED1<br /><img id="LedImg1" src="images/O.png" width="220" height="220"></div>
-                <div class="col-xs-3">LED2<br /><img id="LedImg2" src="images/N.png" width="220" height="220"></div>
-                <div class="col-xs-3">LED3<br /><img id="LedImg3" src="images/N.png" width="220" height="220"></div>
-                <div class="col-xs-3">LED4<br /><img id="LedImg4" src="images/N.png" width="220" height="220"></div>
-            </div>
+    <div class="nav-socket">
+        <div class="socket-title" id="divDeviceInfo"></div>   
+        <div class="col-xs-12" style="padding:48px 12px">
+            <div class="col-xs-3">LED1<br /><img id="LedImg1" src="images/O.png" width="220" height="220"></div>
+            <div class="col-xs-3">LED2<br /><img id="LedImg2" src="images/N.png" width="220" height="220"></div>
+            <div class="col-xs-3">LED3<br /><img id="LedImg3" src="images/N.png" width="220" height="220"></div>
+            <div class="col-xs-3">LED4<br /><img id="LedImg4" src="images/N.png" width="220" height="220"></div>
         </div>
-    
-    
-    
-        <div class="choice">
-            <a href="#"><div class="col-xs-3 off current" id="divBtn1"><img i src="images/open.png" width="56" height="56"></div></a>
-            <a href="#"><div class="col-xs-3 off" id="divBtn2"><img src="images/off.png" width="56" height="56"></div></a>
-            <a href="#"><div class="col-xs-3 off" id="divBtn3"><img src="images/off.png" width="56" height="56"></div></a>
-            <a href="#"><div class="col-xs-3 off" id="divBtn4"><img src="images/off.png" width="56" height="56"></div></a>
-        </div>
-    
-        <div class="control">
-            <span id="spanStat">LED1</span>
-            <div class="col-xs-12">
-                <div class="fast col-xs-4" id="btnF">快闪</div>
-                <div id="divQR" class="qr col-xs-4"><img src="images/qr.png"></div>
-                <div class="slow col-xs-4" id="btnS">慢闪</div>
-            </div>
-        </div> 
     </div>
+
+
+
+    <div class="choice">
+        <a href="#"><div class="col-xs-3 off current" id="divBtn1"><img i src="images/open.png" width="56" height="56"></div></a>
+        <a href="#"><div class="col-xs-3 off" id="divBtn2"><img src="images/off.png" width="56" height="56"></div></a>
+        <a href="#"><div class="col-xs-3 off" id="divBtn3"><img src="images/off.png" width="56" height="56"></div></a>
+        <a href="#"><div class="col-xs-3 off" id="divBtn4"><img src="images/off.png" width="56" height="56"></div></a>
+    </div>
+
+    <div class="control">
+        <span id="spanStat">LED1</span>
+        <div class="col-xs-12">
+            <div class="fast col-xs-4" id="btnF">快闪</div>
+            <div id="divQR" class="qr col-xs-4"><img src="images/qr.png"></div>
+            <div class="slow col-xs-4" id="btnS">慢闪</div>
+        </div>
+    </div> 
 
     <input type="hidden" id="H_ControlID" value="1" />
     <input type="hidden" id="H_ControlValue" value="O" />
