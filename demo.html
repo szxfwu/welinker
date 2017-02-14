@@ -1,0 +1,364 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <meta charset="utf-8" />
+    <link href="css/light.css" rel="stylesheet" />
+    <script src="Scripts/jquery.min.js"></script> 
+    <script src="Scripts/bootstrap.min.js"></script>
+    <script src="Scripts/welinker.js"></script>
+    <link href="css/bootstrap.css" rel="stylesheet" />
+    <style>
+        body {
+            padding-right: 0px !important;
+			background: #ddd;
+        }
+
+        .modal-open {
+            overflow-y: auto;
+        }
+		.mf {
+			margin: 36px auto;
+			width: 420px;
+			height: 736px;
+			background: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mf">
+        <div class="nav-socket">
+            <div class="socket-title" id="divDeviceInfo"></div>   
+            <div class="col-xs-12" style="padding:48px 12px">
+                <div class="col-xs-3">LED1<br /><img id="LedImg1" src="images/O.png" width="220" height="220"></div>
+                <div class="col-xs-3">LED2<br /><img id="LedImg2" src="images/N.png" width="220" height="220"></div>
+                <div class="col-xs-3">LED3<br /><img id="LedImg3" src="images/N.png" width="220" height="220"></div>
+                <div class="col-xs-3">LED4<br /><img id="LedImg4" src="images/N.png" width="220" height="220"></div>
+            </div>
+        </div>
+    
+    
+    
+        <div class="choice">
+            <a href="#"><div class="col-xs-3 off current" id="divBtn1"><img i src="images/open.png" width="56" height="56"></div></a>
+            <a href="#"><div class="col-xs-3 off" id="divBtn2"><img src="images/off.png" width="56" height="56"></div></a>
+            <a href="#"><div class="col-xs-3 off" id="divBtn3"><img src="images/off.png" width="56" height="56"></div></a>
+            <a href="#"><div class="col-xs-3 off" id="divBtn4"><img src="images/off.png" width="56" height="56"></div></a>
+        </div>
+    
+        <div class="control">
+            <span id="spanStat">LED1</span>
+            <div class="col-xs-12">
+                <div class="fast col-xs-4" id="btnF">快闪</div>
+                <div id="divQR" class="qr col-xs-4"><img src="images/qr.png"></div>
+                <div class="slow col-xs-4" id="btnS">慢闪</div>
+            </div>
+        </div> 
+    </div>
+
+    <input type="hidden" id="H_ControlID" value="1" />
+    <input type="hidden" id="H_ControlValue" value="O" />
+    <input type="hidden" id="H_LED1" value="O" />
+    <input type="hidden" id="H_LED2" value="N" />
+    <input type="hidden" id="H_LED3" value="N" />
+    <input type="hidden" id="H_LED4" value="N" />
+
+    <script>
+
+        var thid = "00000064000101bd";
+   //     var json = { thingId: "0x00000064000101bd" };
+        var deviceStateCounter = 0;
+        $(document).ready(function () { 
+            
+            function CmdForm(v, state) {
+                var cmdStr = "";
+                var value = "N";
+                for (var i = 1; i < 5; i++) {
+                    value = $("#H_LED" + i).val();
+                    if (i == v) {
+                        value = state;
+                    }
+                    if (i == 1) {
+                        cmdStr += "LED" + i + "=" + value;
+                    } else {
+                        cmdStr += " LED" + i + "=" + value;
+                    }
+                }
+                // alert("cmdStr:" + cmdStr);
+                console.log("cmdStr:" + cmdStr);
+                var out = new ArrayBuffer(cmdStr.length);
+                var u8a = new Uint8Array(out);
+                var o = 0;
+                var strs = cmdStr.split("");
+                for (var k = 0; k < strs.length; k++) {
+                    u8a[o++] = strs[k].charCodeAt();
+                };
+
+          
+                var deviceid = 0x10010000;
+                welinker.DeviceControl(thid, deviceid, 0, 3000, u8a);
+
+                //记录当前按的按扭
+                $("#H_ControlID").val(v);
+                $("#H_ControlValue").val(state);
+            };
+
+            $("#btnF").on('click', function () {
+                var v = $("#H_ControlID").val();
+                CmdForm(v, "F");
+            });
+            $("#btnS").on('click', function () {
+                var v = $("#H_ControlID").val();
+                CmdForm(v, "S");
+            });
+
+            $("#divBtn1").on('click', function () {
+
+                var scr = $(this).find("img").attr("src");
+                var state = (scr.indexOf("open") >= 0 ? "N" : "O");
+
+                CmdForm(1, state);
+                $("#H_ControlID").val(1);
+            });
+
+            $("#divBtn2").on('click', function () {
+
+                var scr = $(this).find("img").attr("src");
+                var state = (scr.indexOf("open") >= 0 ? "N" : "O");
+                CmdForm(2, state);
+                $("#H_ControlID").val(2);
+            });
+
+            $("#divBtn3").on('click', function () {
+
+                var scr = $(this).find("img").attr("src");
+                var state = (scr.indexOf("open") >= 0 ? "N" : "O");
+                CmdForm(3, state);
+                $("#H_ControlID").val(3);
+
+            });
+
+            $("#divBtn4").on('click', function () {
+
+                var scr = $(this).find("img").attr("src");
+                var state = (scr.indexOf("open") >= 0 ? "N" : "O");
+                CmdForm(4, state);
+            });
+
+            SmartHomeDeviceMonitoringInformation();
+            setInterval(function () { SmartHomeDeviceMonitoringInformation(); }, 10000);
+
+        });
+
+        var deviceAutoReadState = false;
+        function SmartHomeDeviceMonitoringInformation() {
+
+            if (deviceAutoReadState == false) {
+          
+                var deviceid = 0x10010000;
+              //  var thid = json.thingId.replace("0x", "");
+                console.log("thid:" + thid);
+                welinker.DeviceAutoRead(thid, deviceid, "LedState", 3000);
+            }
+
+            
+        };
+
+        function RecoveryState() {
+            $("#LedImg1").attr("src", "images/N.png");
+            $("#LedImg2").attr("src", "images/N.png");
+            $("#LedImg3").attr("src", "images/N.png");
+            $("#LedImg4").attr("src", "images/N.png");
+
+            $("#divBtn1").find("img").attr("src", "images/off.png");
+            $("#divBtn2").find("img").attr("src", "images/off.png");
+            $("#divBtn3").find("img").attr("src", "images/off.png");
+            $("#divBtn4").find("img").attr("src", "images/off.png");
+            $("#H_LED1").val("N");
+            $("#H_LED2").val("N");
+            $("#H_LED3").val("N");
+            $("#H_LED4").val("N");
+        }
+
+        welinker.CallBackonMessage(message);  //注册信息回调函数
+
+
+        function message(type, result, data) {
+            console.log("type:" + type + "-->result:" + result + "-->message data:" + JSON.stringify(data))
+            if (type == "Login") {
+                deviceAutoReadState = false;
+                if (result == 0) {
+                    SmartHomeDeviceMonitoringInformation();
+                } else {
+                    RecoveryState();                  
+                    $(".ledstatus").html("当前网络不可用,请检查你的网络设置!");
+                    $(".ledstatus").show();
+                }
+                return;
+            }
+            if (type == "DeviceWrite") {
+
+            }
+            if (type == "DeviceAutoRead") {
+                //判断是否要重启DeviceAutoRead机制
+                if (result == 0) {
+                    deviceAutoReadState = true;
+                } else {
+                    deviceAutoReadState = false
+                }
+            }
+
+            if (result == -13) {
+                RecoveryState();
+                $(".ledstatus").html("你的设备已离线,请检查设备网络!");
+                $(".ledstatus").show();
+            }
+          
+            var length = 0;
+
+            length |= data[8] << 8;
+            length |= data[9] << 0;
+
+            //从那个开始 到那个结束
+            var resultData = data.slice(10, data.length);
+
+            if (result == 0) {
+                $(".ledstatus").hide();
+                var val = "";
+
+                for (var i = 0; i < resultData.length; i++) {
+                    val += String.fromCharCode(resultData[i]);
+                }
+
+                console.log("String :" + val);
+                //处理界面显示逻辑
+
+                $(".choice a>div").each(function () {
+                    $(this).removeClass("current");
+                })
+                var controlid = $("#H_ControlID").val();
+                $("#divBtn" + controlid).addClass("current");
+
+                var controlValue = $("#H_ControlValue").val();
+
+
+                var addClass = "on";
+                if (controlValue == "O") {
+                    addClass = "on"; //开
+                }
+                if (controlValue == "N") {
+                    addClass = "off";  //关
+                }
+                if (controlValue == "F") {
+                    addClass = "fast"; //快闪
+                }
+                if (controlValue == "S") {
+                    addClass = "slow";  //慢闪
+                }
+                $("#spanStat").html("LED" + controlid);
+               
+                //处理界面显示逻辑 end
+                //处理灯的状态显示
+                if (val.indexOf("LED1=") >= 0) {
+                    var index = val.indexOf("LED1=") + 5;
+                    var img = val.substr(index, 1);
+                    var src = $("#LedImg1").attr("src");
+
+                    $("#H_LED1").val(img); 
+                    var btnImg = $("#divBtn1").find("img");
+                    var btnScr = btnImg.attr("src");
+                    img = img.replace(/(\s*$)/g, "");
+                    //处理开关图片的状态
+                    if (img == "N") {
+                        btnImg.attr("src", "images/off.png");
+                    } else {
+                        btnImg.attr("src", "images/open.png");
+                    }
+                    //处理灯的图片
+                    if (src.indexOf("/" + img) < 0) {
+                        if (img == "N" || img == "O") {
+                            img = "images/" + img + ".png"
+                        } else {
+                            img = "images/" + img + ".gif"
+                        }
+                        $("#LedImg1").attr("src", img);
+                    }
+                };
+                if (val.indexOf("LED2=") >= 0) {
+                    var index = val.indexOf("LED2=") + 5;
+                    var img = val.substr(index, 1);
+                    var src = $("#LedImg2").attr("src");
+                    $("#H_LED2").val(img); 
+                    var btnImg = $("#divBtn2").find("img");
+                    var btnScr = btnImg.attr("src");
+                    img = img.replace(/(\s*$)/g, "");
+                    if (img == "N") {
+                        btnImg.attr("src", "images/off.png");
+                    } else {
+                        btnImg.attr("src", "images/open.png");
+                    }
+                    if (src.indexOf("/" + img) < 0) {
+                        if (img == "N" || img == "O") {
+                            img = "images/" + img + ".png"
+                        } else {
+                            img = "images/" + img + ".gif"
+                        }
+                        $("#LedImg2").attr("src", img);
+                    }
+                }
+                if (val.indexOf("LED3=") >= 0) {
+                    var index = val.indexOf("LED3=") + 5;
+                    var img = val.substr(index, 1);
+                    var src = $("#LedImg3").attr("src");
+                    $("#H_LED3").val(img);
+             
+                    var btnImg = $("#divBtn3").find("img");
+                    var btnScr = btnImg.attr("src");
+                    img = img.replace(/(\s*$)/g, "");
+                    if (img == "N") {
+                        btnImg.attr("src", "images/off.png");
+                    } else {
+                        btnImg.attr("src", "images/open.png");
+                    }
+                    if (src.indexOf("/" + img) < 0) {
+                        if (img == "N" || img == "O") {
+                            img = "images/" + img + ".png"
+                        } else {
+                            img = "images/" + img + ".gif"
+                        }
+                        $("#LedImg3").attr("src", img);
+                    }
+                }
+                if (val.indexOf("LED4=") >= 0) {
+                    var index = val.indexOf("LED4=") + 5;
+                    var img = val.substr(index, 1);
+                    var src = $("#LedImg4").attr("src");
+                    $("#H_LED4").val(img);
+                 
+                    var btnImg = $("#divBtn4").find("img");
+                    var btnScr = btnImg.attr("src");
+                    img = img.replace(/(\s*$)/g, "");
+                    if (img == "N") {
+                        btnImg.attr("src", "images/off.png");
+                    } else {
+                        btnImg.attr("src", "images/open.png");
+                    }
+                    if (src.indexOf("/" + img) < 0) {
+                        if (img == "N" || img == "O") {
+                            img = "images/" + img + ".png"
+                        } else {
+                            img = "images/" + img + ".gif"
+                        }
+                        $("#LedImg4").attr("src", img);
+                    }
+                }
+            };
+        };
+         
+    </script>
+
+</body>
+</html>
